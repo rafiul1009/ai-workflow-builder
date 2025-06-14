@@ -1,0 +1,92 @@
+import workflowReducer, {
+  setNodes,
+  setEdges,
+  selectNode,
+  updateNodeConfig,
+  setRunningState,
+  setNodeResult,
+  clearResults,
+} from './workflowSlice';
+
+describe('workflow reducer', () => {
+  const initialState = {
+    nodes: [],
+    edges: [],
+    selectedNode: null,
+    isRunning: false,
+    results: {},
+  };
+
+  it('should handle initial state', () => {
+    expect(workflowReducer(undefined, { type: 'unknown' })).toEqual(initialState);
+  });
+
+  it('should handle setNodes', () => {
+    const nodes = [
+      { id: '1', type: 'input', position: { x: 0, y: 0 }, data: { label: 'Input' } },
+    ];
+    const actual = workflowReducer(initialState, setNodes(nodes));
+    expect(actual.nodes).toEqual(nodes);
+  });
+
+  it('should handle setEdges', () => {
+    const edges = [
+      { id: 'e1', source: '1', target: '2' },
+    ];
+    const actual = workflowReducer(initialState, setEdges(edges));
+    expect(actual.edges).toEqual(edges);
+  });
+
+  it('should handle selectNode', () => {
+    const node = {
+      id: '1',
+      type: 'input',
+      data: { label: 'Input', config: {} },
+    };
+    const actual = workflowReducer(initialState, selectNode(node));
+    expect(actual.selectedNode).toEqual(node);
+  });
+
+  it('should handle updateNodeConfig', () => {
+    const initialStateWithNode = {
+      ...initialState,
+      nodes: [
+        {
+          id: '1',
+          type: 'input',
+          data: { label: 'Input', config: { oldKey: 'value' } },
+        },
+      ],
+    };
+    const actual = workflowReducer(
+      initialStateWithNode,
+      updateNodeConfig({ id: '1', config: { newKey: 'newValue' } })
+    );
+    expect(actual.nodes[0].data.config).toEqual({
+      oldKey: 'value',
+      newKey: 'newValue',
+    });
+  });
+
+  it('should handle setRunningState', () => {
+    const actual = workflowReducer(initialState, setRunningState(true));
+    expect(actual.isRunning).toBe(true);
+  });
+
+  it('should handle setNodeResult', () => {
+    const actual = workflowReducer(
+      initialState,
+      setNodeResult({ nodeId: '1', result: 'test result' })
+    );
+    expect(actual.results['1']).toBe('test result');
+  });
+
+  it('should handle clearResults', () => {
+    const stateWithResults = {
+      ...initialState,
+      results: { '1': 'result1', '2': 'result2' },
+    };
+    const actual = workflowReducer(stateWithResults, clearResults());
+    expect(actual.results).toEqual({});
+  });
+});
