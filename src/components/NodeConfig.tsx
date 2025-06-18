@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
 import { updateNodeConfig } from '@/store/slices/workflowSlice';
-import { NodeConfig as NodeConfigType } from '@/types/workflow';
+import { Category, NodeConfig as NodeConfigType } from '@/types/workflow';
 
 type ConfigChanges = Partial<NodeConfigType>;
 
@@ -17,7 +17,7 @@ const NodeConfig = () => {
     );
   }
 
-  const handleConfigChange = (changes: ConfigChanges) => {
+  const handleConfigChange = (changes: ConfigChanges) => {    
     dispatch(updateNodeConfig({
       id: selectedNode.id,
       config: changes
@@ -82,14 +82,16 @@ const NodeConfig = () => {
   const renderClassifyConfig = () => (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700">Categories</label>
-        <input
-          type="text"
-          value={(selectedNode.data.config.categories ?? []).join(', ')}
-          onChange={(e) => handleConfigChange({ categories: e.target.value.split(',').map(c => c.trim()) })}
+        <label className="block text-sm font-medium text-gray-700">Category</label>
+        <select
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          placeholder="Enter categories, separated by commas"
-        />
+          value={selectedNode.data.config.category || 'positive'}
+          onChange={(e) => handleConfigChange({ category: e.target.value as Category })}
+        >
+          <option value="positive">Positive</option>
+          <option value="negative">Negative</option>
+          <option value="neutral">Neutral</option>
+        </select>
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700">Threshold</label>
@@ -103,15 +105,6 @@ const NodeConfig = () => {
           className="w-full"
         />
         <span className="text-sm text-gray-500">{selectedNode.data.config.threshold}</span>
-      </div>
-      <div className="flex items-center">
-        <input
-          type="checkbox"
-          checked={selectedNode.data.config.multiLabel}
-          onChange={(e) => handleConfigChange({ multiLabel: e.target.checked })}
-          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-        />
-        <label className="ml-2 block text-sm text-gray-700">Allow Multiple Labels</label>
       </div>
     </div>
   );

@@ -1,6 +1,8 @@
-import { Node } from 'reactflow';
+import { Node, NodeChange } from 'reactflow';
 
 export type NodeType = 'input' | 'summarize' | 'classify' | 'output';
+
+export type Category = 'positive' | 'negative' | 'neutral';
 
 export type NodeConfig = {
   value?: string;
@@ -8,7 +10,7 @@ export type NodeConfig = {
   model?: 'small' | 'medium' | 'large';
   maxLength?: number;
   temperature?: number;
-  categories?: string[];
+  category?: Category;
   threshold?: number;
   multiLabel?: boolean;
   format?: 'json' | 'text';
@@ -33,3 +35,12 @@ export type NodeResult = {
   summary?: string;
   value?: string;
 } | null;
+
+export type NodePositionChange = NodeChange & {
+  type: 'position';
+  position: { x: number; y: number };
+};
+
+export function isNodePositionChange(change: NodeChange): change is NodePositionChange {
+  return change.type === 'position' && 'position' in change;
+}

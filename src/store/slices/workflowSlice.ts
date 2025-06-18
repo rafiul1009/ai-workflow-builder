@@ -33,10 +33,12 @@ export const workflowSlice = createSlice({
     selectNode: (state, action: PayloadAction<WorkflowNode | null>) => {
       state.selectedNode = action.payload;
     },
-    updateNodeConfig: (state, action: PayloadAction<{ id: string; config: Partial<NodeConfig> }>) => {
+    updateNodeConfig: (state, action: PayloadAction<{ id: string; config: Partial<NodeConfig> }>) => {      
       const node = state.nodes.find(n => n.id === action.payload.id);
+      console.log("node", node);
       if (node) {
         node.data.config = { ...node.data.config, ...action.payload.config };
+        state.selectedNode = { ...node };
       }
     },
     setRunningState: (state, action: PayloadAction<boolean>) => {

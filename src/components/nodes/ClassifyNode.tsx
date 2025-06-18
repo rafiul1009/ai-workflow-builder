@@ -4,7 +4,7 @@ import { Handle, Position, NodeProps } from 'reactflow';
 interface ClassifyNodeData {
   label: string;
   config: {
-    categories: string[];
+    category: string;
     threshold: number;
     multiLabel: boolean;
   };
@@ -24,7 +24,7 @@ const ClassifyNode = ({ data, isConnectable }: NodeProps<ClassifyNodeData>) => {
           <div className="text-sm text-gray-500">
             <div className="flex flex-col gap-1">
               <div>
-                Categories: {data.config.categories.join(', ')}
+                Category: {data.config.category}
               </div>
               <div>
                 Threshold: {data.config.threshold}

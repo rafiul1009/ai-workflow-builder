@@ -1,5 +1,5 @@
 import { Edge } from 'reactflow';
-import { WorkflowNode, NodeResult, NodeType, ClassificationResult } from '@/types/workflow';
+import { WorkflowNode, NodeResult, NodeType } from '@/types/workflow';
 
 interface WorkflowData {
   nodes: WorkflowNode[];
@@ -26,20 +26,9 @@ const mockProcessing = async (node: WorkflowNode, input: NodeResult): Promise<No
       };
 
     case 'classify':
-      const categories = node.data.config.categories || [];
-      if (node.data.config.multiLabel) {
-        const results: ClassificationResult[] = categories
-          .filter(() => Math.random() > (node.data.config.threshold || 0.5))
-          .map((cat: string) => ({
-            category: cat,
-            confidence: Math.random().toFixed(2)
-          }));
-        return { classification: results };
-      }
-      const randomCategory = categories[Math.floor(Math.random() * categories.length)];
       return {
         classification: {
-          category: randomCategory,
+          category: node.data.config.category || 'positive',
           confidence: Math.random().toFixed(2)
         }
       };

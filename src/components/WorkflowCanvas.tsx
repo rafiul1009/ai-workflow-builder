@@ -6,8 +6,8 @@ import ReactFlow, {
   Connection,
   Edge,
   Node,
+  NodeChange,
   useEdgesState,
-  useNodesState,
 } from 'reactflow';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
@@ -17,6 +17,7 @@ import InputNode from './nodes/InputNode';
 import SummarizeNode from './nodes/SummarizeNode';
 import ClassifyNode from './nodes/ClassifyNode';
 import OutputNode from './nodes/OutputNode';
+import { isNodePositionChange } from '@/types/workflow';
 
 import 'reactflow/dist/style.css';
 
@@ -30,7 +31,6 @@ const nodeTypes = {
 const WorkflowCanvas = () => {
   const dispatch = useDispatch();
   const nodes = useSelector((state: RootState) => state.workflow.nodes);
-  const [, , onNodesChange] = useNodesState<WorkflowNode[]>([]);
   const [edges, setLocalEdges, onEdgesChange] = useEdgesState([]);
 
   const onConnect = useCallback(
@@ -108,12 +108,26 @@ const WorkflowCanvas = () => {
     event.dataTransfer.dropEffect = 'move';
   }, []);
 
+  // Add handler for node changes
+  const handleNodesChange = useCallback((changes: NodeChange[]) => {
+    changes.forEach((change) => {
+      if (isNodePositionChange(change)) {
+        const updatedNodes = nodes.map(node =>
+          node.id === change.id
+            ? { ...node, position: change.position }
+            : node
+        );
+        dispatch(setNodes(updatedNodes));
+      }
+    });
+  }, [nodes, dispatch]);
+
   return (
     <div className="h-full w-full">
       <ReactFlow
         nodes={nodes}
         edges={edges}
-        onNodesChange={onNodesChange}
+        onNodesChange={handleNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onNodeClick={onNodeClick}

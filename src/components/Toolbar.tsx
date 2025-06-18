@@ -22,9 +22,8 @@ const nodeTypes = [
 		type: 'classify',
 		label: 'Classify',
 		config: {
-			categories: ['positive', 'negative', 'neutral'],
+			category: 'positive',
 			threshold: 0.5,
-			multiLabel: false,
 		},
 	},
 	{

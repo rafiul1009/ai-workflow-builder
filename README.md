@@ -13,7 +13,7 @@ A drag-and-drop visual AI workflow builder for non-technical users to design, si
 - 🧩 Node Types & Configuration
   - InputNode: Accept text or file input
   - SummarizeNode: AI summarization config
-  - ClassifyNode: Select label categories
+  - ClassifyNode: Select label category
   - OutputNode: Display results
   - Sidebar editor for node configuration
 

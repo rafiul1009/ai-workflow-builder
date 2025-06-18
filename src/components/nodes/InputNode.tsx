@@ -1,5 +1,7 @@
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
+import { useDispatch } from 'react-redux';
+import { updateNodeConfig } from '@/store/slices/workflowSlice';
 
 interface InputNodeData {
   label: string;
@@ -9,25 +11,67 @@ interface InputNodeData {
   };
 }
 
-const InputNode = ({ data, isConnectable }: NodeProps<InputNodeData>) => {
+const InputNode = ({ data, id, isConnectable }: NodeProps<InputNodeData>) => {
+  console.log("InputNode data", data);
+  
+  const dispatch = useDispatch();
+
+  const handleTextChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      dispatch(
+        updateNodeConfig({
+          id,
+          config: { value: e.target.value },
+        })
+      );
+    },
+    [dispatch, id]
+  );
+
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        dispatch(
+          updateNodeConfig({
+            id,
+            config: { value: file.name },
+          })
+        );
+      }
+    },
+    [dispatch, id]
+  );
+
   return (
     <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-stone-400">
       <div className="flex items-center">
-        <div className="ml-2">
+        <div className="ml-2 w-full">
           <div className="text-lg font-bold">{data.label}</div>
           <div className="text-gray-500">
             {data.config.inputType === 'text' ? (
               <textarea
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded resize-y min-h-[60px]"
                 placeholder="Enter text..."
                 value={data.config.value}
-                readOnly
+                onChange={handleTextChange}
               />
             ) : (
-              <div className="flex items-center space-x-2">
-                <span className="text-sm">File Input</span>
+              <div className="flex flex-col gap-2">
+                <input
+                  type="file"
+                  id={`file-${id}`}
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+                <label
+                  htmlFor={`file-${id}`}
+                  className="cursor-pointer px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded text-center"
+                >
+                  {data.config.value ? 'Change File' : 'Upload File'}
+                </label>
                 {data.config.value && (
-                  <span className="text-xs text-gray-400">
+                  <span className="text-sm text-gray-600 truncate">
                     {data.config.value}
                   </span>
                 )}
