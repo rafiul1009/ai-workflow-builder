@@ -35,7 +35,6 @@ export const workflowSlice = createSlice({
     },
     updateNodeConfig: (state, action: PayloadAction<{ id: string; config: Partial<NodeConfig> }>) => {      
       const node = state.nodes.find(n => n.id === action.payload.id);
-      console.log("node", node);
       if (node) {
         node.data.config = { ...node.data.config, ...action.payload.config };
         state.selectedNode = { ...node };

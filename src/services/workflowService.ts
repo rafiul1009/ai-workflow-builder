@@ -68,7 +68,7 @@ const mockProcessing = async (node: WorkflowNode, input: NodeResult): Promise<No
       if (input?.classification) {
         parts.push(`Classification: ${input.classification.category} (${input.classification.confidence})`);
       }
-      return { text: parts.join('\n') };
+      return { text: parts.join('<br/>') };
 
     default:
       return input;
@@ -108,9 +108,7 @@ export const executeWorkflow = async (
 
     // Process current node
     const input = inputs.length > 0 ? inputs[0] : null;
-    console.log("input", input);
     const result = await mockProcessing(node, input);
-    console.log("result", result);
     nodeResults[nodeId] = result;
     processedNodes.add(nodeId);
     onNodeComplete(nodeId, result);
@@ -121,8 +119,6 @@ export const executeWorkflow = async (
   };
 
   // Start with input nodes
-  const inputNodes = nodes.filter(node => node.type === 'input');
-  console.log("inputNodes", inputNodes);
-  
+  const inputNodes = nodes.filter(node => node.type === 'input');  
   await Promise.all(inputNodes.map(node => processNode(node.id)));
 };

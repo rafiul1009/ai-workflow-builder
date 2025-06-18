@@ -43,9 +43,9 @@ const InputNode = ({ data, id, isConnectable }: NodeProps<InputNodeData>) => {
   );
 
   return (
-    <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-stone-400">
+    <div className="px-3 py-2 shadow-md rounded-md bg-white border-2 border-stone-400">
       <div className="flex items-center">
-        <div className="ml-2 w-full">
+        <div className="w-full">
           <div className="text-lg font-bold">{data.label}</div>
           <div className="text-gray-500">
             {data.config.inputType === 'text' ? (

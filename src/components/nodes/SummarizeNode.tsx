@@ -12,14 +12,14 @@ interface SummarizeNodeData {
 
 const SummarizeNode = ({ data, isConnectable }: NodeProps<SummarizeNodeData>) => {
   return (
-    <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-blue-400">
+    <div className="px-3 py-2 shadow-md rounded-md bg-white border-2 border-blue-400">
       <Handle
         type="target"
         position={Position.Top}
         isConnectable={isConnectable}
       />
       <div className="flex items-center">
-        <div className="ml-2">
+        <div className="text-left">
           <div className="text-lg font-bold">{data.label}</div>
           <div className="text-sm text-gray-500">
             <div className="flex flex-col gap-1">

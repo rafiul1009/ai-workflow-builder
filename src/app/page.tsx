@@ -7,7 +7,7 @@ import WorkflowCanvas from '@/components/WorkflowCanvas';
 import Toolbar from '@/components/Toolbar';
 import NodeConfig from '@/components/NodeConfig';
 import RunWorkflow from '@/components/RunWorkflow';
-import SaveWorkflow from '@/components/SaveWorkflow';
+// import SaveWorkflow from '@/components/SaveWorkflow';
 
 export default function Home() {
   return (
@@ -24,7 +24,7 @@ export default function Home() {
             <NodeConfig />
           </div>
           <RunWorkflow />
-          <SaveWorkflow />
+          {/* <SaveWorkflow /> */}
         </main>
       </ReactFlowProvider>
     </Provider>
