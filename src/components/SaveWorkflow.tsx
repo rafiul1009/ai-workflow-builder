@@ -1,13 +1,15 @@
 import { useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { Edge } from 'reactflow';
 import { RootState } from '@/store/store';
 import { setNodes, setEdges } from '@/store/slices/workflowSlice';
+import { WorkflowNode } from '@/types/workflow';
 
 interface Workflow {
   _id: string;
   name: string;
-  nodes: any[];
-  edges: any[];
+  nodes: WorkflowNode[];
+  edges: Edge[];
 }
 
 const SaveWorkflow = () => {
@@ -95,7 +97,7 @@ const SaveWorkflow = () => {
                 className="w-full px-3 py-2 border rounded"
               />
               <button
-                onClick={handleSave}
+                onClick={() => handleSave()}
                 disabled={isLoading || !workflowName.trim()}
                 className="mt-2 w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
               >

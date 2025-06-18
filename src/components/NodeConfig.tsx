@@ -1,6 +1,9 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
 import { updateNodeConfig } from '@/store/slices/workflowSlice';
+import { NodeConfig as NodeConfigType } from '@/types/workflow';
+
+type ConfigChanges = Partial<NodeConfigType>;
 
 const NodeConfig = () => {
   const dispatch = useDispatch();
@@ -14,7 +17,7 @@ const NodeConfig = () => {
     );
   }
 
-  const handleConfigChange = (changes: any) => {
+  const handleConfigChange = (changes: ConfigChanges) => {
     dispatch(updateNodeConfig({
       id: selectedNode.id,
       config: changes
@@ -28,7 +31,7 @@ const NodeConfig = () => {
         <select
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           value={selectedNode.data.config.inputType}
-          onChange={(e) => handleConfigChange({ inputType: e.target.value })}
+          onChange={(e) => handleConfigChange({ inputType: e.target.value as 'text' | 'file' })}
         >
           <option value="text">Text</option>
           <option value="file">File</option>
@@ -44,7 +47,7 @@ const NodeConfig = () => {
         <select
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           value={selectedNode.data.config.model}
-          onChange={(e) => handleConfigChange({ model: e.target.value })}
+          onChange={(e) => handleConfigChange({ model: e.target.value as 'small' | 'medium' | 'large' })}
         >
           <option value="small">Small</option>
           <option value="medium">Medium</option>
@@ -82,7 +85,7 @@ const NodeConfig = () => {
         <label className="block text-sm font-medium text-gray-700">Categories</label>
         <input
           type="text"
-          value={selectedNode.data.config.categories.join(', ')}
+          value={(selectedNode.data.config.categories ?? []).join(', ')}
           onChange={(e) => handleConfigChange({ categories: e.target.value.split(',').map(c => c.trim()) })}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           placeholder="Enter categories, separated by commas"
@@ -120,7 +123,7 @@ const NodeConfig = () => {
         <select
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           value={selectedNode.data.config.format}
-          onChange={(e) => handleConfigChange({ format: e.target.value })}
+          onChange={(e) => handleConfigChange({ format: e.target.value as 'text' | 'json' })}
         >
           <option value="text">Text</option>
           <option value="json">JSON</option>

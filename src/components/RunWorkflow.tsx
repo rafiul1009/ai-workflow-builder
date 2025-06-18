@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
 import { setRunningState, setNodeResult, clearResults } from '@/store/slices/workflowSlice';
 import { executeWorkflow } from '@/services/workflowService';
+import { NodeResult } from '@/types/workflow';
 
 const RunWorkflow = () => {
   const dispatch = useDispatch();
@@ -15,7 +16,7 @@ const RunWorkflow = () => {
     try {
       await executeWorkflow(
         { nodes, edges },
-        (nodeId: string, result: any) => {
+        (nodeId: string, result: NodeResult) => {
           dispatch(setNodeResult({ nodeId, result }));
         }
       );

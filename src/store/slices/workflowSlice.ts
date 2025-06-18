@@ -1,24 +1,14 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Edge, Node } from 'reactflow';
-
-interface NodeConfig {
-  id: string;
-  type: 'input' | 'summarize' | 'classify' | 'output';
-  data: {
-    label: string;
-    config: {
-      [key: string]: any;
-    };
-  };
-}
+import { Edge } from 'reactflow';
+import { WorkflowNode, NodeConfig, NodeResult } from '@/types/workflow';
 
 interface WorkflowState {
-  nodes: Node[];
+  nodes: WorkflowNode[];
   edges: Edge[];
-  selectedNode: NodeConfig | null;
+  selectedNode: WorkflowNode | null;
   isRunning: boolean;
   results: {
-    [nodeId: string]: any;
+    [nodeId: string]: NodeResult;
   };
 }
 
@@ -34,16 +24,16 @@ export const workflowSlice = createSlice({
   name: 'workflow',
   initialState,
   reducers: {
-    setNodes: (state, action: PayloadAction<Node[]>) => {
+    setNodes: (state, action: PayloadAction<WorkflowNode[]>) => {
       state.nodes = action.payload;
     },
     setEdges: (state, action: PayloadAction<Edge[]>) => {
       state.edges = action.payload;
     },
-    selectNode: (state, action: PayloadAction<NodeConfig | null>) => {
+    selectNode: (state, action: PayloadAction<WorkflowNode | null>) => {
       state.selectedNode = action.payload;
     },
-    updateNodeConfig: (state, action: PayloadAction<{ id: string; config: any }>) => {
+    updateNodeConfig: (state, action: PayloadAction<{ id: string; config: Partial<NodeConfig> }>) => {
       const node = state.nodes.find(n => n.id === action.payload.id);
       if (node) {
         node.data.config = { ...node.data.config, ...action.payload.config };
@@ -52,7 +42,7 @@ export const workflowSlice = createSlice({
     setRunningState: (state, action: PayloadAction<boolean>) => {
       state.isRunning = action.payload;
     },
-    setNodeResult: (state, action: PayloadAction<{ nodeId: string; result: any }>) => {
+    setNodeResult: (state, action: PayloadAction<{ nodeId: string; result: NodeResult }>) => {
       state.results[action.payload.nodeId] = action.payload.result;
     },
     clearResults: (state) => {

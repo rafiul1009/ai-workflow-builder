@@ -1,35 +1,51 @@
-import { Node, Edge } from 'reactflow';
+import { Edge } from 'reactflow';
+import { WorkflowNode, NodeResult, NodeType, ClassificationResult } from '@/types/workflow';
 
 interface WorkflowData {
-  nodes: Node[];
+  nodes: WorkflowNode[];
   edges: Edge[];
+}
+
+interface NodeResults {
+  [key: string]: NodeResult;
 }
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-const mockProcessing = async (node: Node, input: any): Promise<any> => {
+const mockProcessing = async (node: WorkflowNode, input: NodeResult): Promise<NodeResult> => {
   await delay(1000); // Simulate processing time
 
-  switch (node.type) {
+  switch (node.type as NodeType) {
     case 'input':
-      return node.data.config.value || 'Sample input text';
+      return { text: node.data.config.value || 'Sample input text' };
 
     case 'summarize':
-      const text = typeof input === 'string' ? input : JSON.stringify(input);
-      return `Summarized (${node.data.config.model}): ${text.substring(0, node.data.config.maxLength)}`;
+      const inputText = input?.text || JSON.stringify(input);
+      return {
+        summary: `Summarized (${node.data.config.model}): ${inputText.substring(0, node.data.config.maxLength)}`
+      };
 
     case 'classify':
-      const categories = node.data.config.categories;
+      const categories = node.data.config.categories || [];
       if (node.data.config.multiLabel) {
-        return categories
-          .filter(() => Math.random() > node.data.config.threshold)
-          .map(cat => ({ category: cat, confidence: Math.random().toFixed(2) }));
+        const results: ClassificationResult[] = categories
+          .filter(() => Math.random() > (node.data.config.threshold || 0.5))
+          .map((cat: string) => ({
+            category: cat,
+            confidence: Math.random().toFixed(2)
+          }));
+        return { classification: results };
       }
       const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-      return { category: randomCategory, confidence: Math.random().toFixed(2) };
+      return {
+        classification: {
+          category: randomCategory,
+          confidence: Math.random().toFixed(2)
+        }
+      };
 
     case 'output':
-      return node.data.config.format === 'json' ? JSON.stringify(input, null, 2) : String(input);
+      return { text: node.data.config.format === 'json' ? JSON.stringify(input, null, 2) : String(input) };
 
     default:
       return input;
@@ -44,11 +60,11 @@ const findNextNodes = (nodeId: string, edges: Edge[]): string[] => {
 
 export const executeWorkflow = async (
   workflowData: WorkflowData,
-  onNodeComplete: (nodeId: string, result: any) => void
+  onNodeComplete: (nodeId: string, result: NodeResult) => void
 ): Promise<void> => {
   const { nodes, edges } = workflowData;
   const processedNodes = new Set<string>();
-  const nodeResults: { [key: string]: any } = {};
+  const nodeResults: NodeResults = {};
 
   const processNode = async (nodeId: string): Promise<void> => {
     if (processedNodes.has(nodeId)) return;

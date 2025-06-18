@@ -9,8 +9,10 @@ import ReactFlow, {
   useEdgesState,
   useNodesState,
 } from 'reactflow';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
 import { setNodes, setEdges, selectNode } from '@/store/slices/workflowSlice';
+import { WorkflowNode } from '@/types/workflow';
 import InputNode from './nodes/InputNode';
 import SummarizeNode from './nodes/SummarizeNode';
 import ClassifyNode from './nodes/ClassifyNode';
@@ -27,7 +29,8 @@ const nodeTypes = {
 
 const WorkflowCanvas = () => {
   const dispatch = useDispatch();
-  const [nodes, setLocalNodes, onNodesChange] = useNodesState([]);
+  const nodes = useSelector((state: RootState) => state.workflow.nodes);
+  const [, , onNodesChange] = useNodesState<WorkflowNode[]>([]);
   const [edges, setLocalEdges, onEdgesChange] = useEdgesState([]);
 
   const onConnect = useCallback(
@@ -41,18 +44,28 @@ const WorkflowCanvas = () => {
 
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => {
-      dispatch(selectNode(node));
+      if (!node.type) return;
+      dispatch(selectNode({
+        ...node,  // Include all node properties (position, etc.)
+        type: node.type as 'input' | 'summarize' | 'classify' | 'output',
+        data: {
+          label: node.data.label,
+          config: node.data.config
+        }
+      }));
     },
     [dispatch]
   );
 
   const onNodesDelete = useCallback(
     (deleted: Node[]) => {
-      setLocalNodes(nodes.filter(n => !deleted.find(d => d.id === n.id)));
-      dispatch(setNodes(nodes.filter(n => !deleted.find(d => d.id === n.id))));
+      const filteredNodes = nodes.filter(
+        n => !deleted.find(d => d.id === n.id)
+      );
+      dispatch(setNodes(filteredNodes));
       dispatch(selectNode(null));
     },
-    [nodes, setLocalNodes, dispatch]
+    [nodes, dispatch]
   );
 
   const onEdgesDelete = useCallback(
@@ -62,6 +75,38 @@ const WorkflowCanvas = () => {
     },
     [edges, setLocalEdges, dispatch]
   );
+
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+
+      const reactFlowBounds = event.currentTarget.getBoundingClientRect();
+      const type = event.dataTransfer.getData('application/reactflow');
+
+      if (!type) return;
+
+      const position = {
+        x: event.clientX - reactFlowBounds.left,
+        y: event.clientY - reactFlowBounds.top,
+      };
+
+      const nodeData = JSON.parse(type);
+      const newNode: WorkflowNode = {
+        id: `${nodeData.type}-${Date.now()}`,
+        type: nodeData.type,
+        position,
+        data: { label: nodeData.label, config: nodeData.config },
+      };
+
+      dispatch(setNodes([...nodes, newNode]));
+    },
+    [dispatch, nodes]
+  );
+
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
 
   return (
     <div className="h-full w-full">
@@ -75,6 +120,8 @@ const WorkflowCanvas = () => {
         onNodesDelete={onNodesDelete}
         onEdgesDelete={onEdgesDelete}
         nodeTypes={nodeTypes}
+        onDrop={onDrop}
+        onDragOver={onDragOver}
         fitView
       >
         <Background />
