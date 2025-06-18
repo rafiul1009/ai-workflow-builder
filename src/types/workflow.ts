@@ -31,7 +31,7 @@ export type ClassificationResult = {
 
 export type NodeResult = {
   text?: string;
-  classification?: ClassificationResult | ClassificationResult[];
+  classification?: ClassificationResult;
   summary?: string;
   value?: string;
 } | null;

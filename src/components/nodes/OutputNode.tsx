@@ -30,7 +30,7 @@ const OutputNode = ({ data, id, isConnectable }: NodeProps<OutputNodeData>) => {
                 <div className="mt-2 p-2 bg-gray-100 rounded max-w-xs overflow-auto">
                   {data.config.format === 'json' 
                     ? <pre>{JSON.stringify(result, null, 2)}</pre>
-                    : <div>{String(result)}</div>
+                    : <div>{result.text}</div>
                   }
                 </div>
               )}

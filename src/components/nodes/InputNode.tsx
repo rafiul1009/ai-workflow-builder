@@ -12,7 +12,6 @@ interface InputNodeData {
 }
 
 const InputNode = ({ data, id, isConnectable }: NodeProps<InputNodeData>) => {
-  console.log("InputNode data", data);
   
   const dispatch = useDispatch();
 

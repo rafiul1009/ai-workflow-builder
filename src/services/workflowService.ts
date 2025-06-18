@@ -17,24 +17,58 @@ const mockProcessing = async (node: WorkflowNode, input: NodeResult): Promise<No
 
   switch (node.type as NodeType) {
     case 'input':
-      return { text: node.data.config.value || 'Sample input text' };
+      return {
+        text: node.data.config.value || 'Sample input text'
+      };
 
     case 'summarize':
-      const inputText = input?.text || JSON.stringify(input);
+      const textToSummarize = input?.text || '';
       return {
-        summary: `Summarized (${node.data.config.model}): ${inputText.substring(0, node.data.config.maxLength)}`
+        ...input,
+        summary: `Summarized (${node.data.config.model}): ${textToSummarize.substring(0, node.data.config.maxLength)}`
       };
 
     case 'classify':
+      const textToClassify = input?.summary || '';
+      const category = node.data.config.category || 'positive';
+      let confidence: number;
+      
+      // Simulate different confidence levels based on input and category
+      switch (category) {
+        case 'positive':
+          confidence = textToClassify.toLowerCase().includes('good') ? 0.9 : 0.3;
+          break;
+        case 'negative':
+          confidence = textToClassify.toLowerCase().includes('bad') ? 0.9 : 0.3;
+          break;
+        case 'neutral':
+          confidence = textToClassify.toLowerCase().includes('okay') ? 0.9 : 0.3;
+          break;
+        default:
+          confidence = 0.5;
+      }
+
       return {
+        ...input,
         classification: {
-          category: node.data.config.category || 'positive',
-          confidence: Math.random().toFixed(2)
+          category,
+          confidence: confidence.toFixed(2)
         }
       };
 
     case 'output':
-      return { text: node.data.config.format === 'json' ? JSON.stringify(input, null, 2) : String(input) };
+      if (node.data.config.format === 'json') {
+        return input;
+      }
+      
+      // Format as text
+      const parts = [];
+      if (input?.text) parts.push(`Original: ${input.text}`);
+      if (input?.summary) parts.push(`Summary: ${input.summary}`);
+      if (input?.classification) {
+        parts.push(`Classification: ${input.classification.category} (${input.classification.confidence})`);
+      }
+      return { text: parts.join('\n') };
 
     default:
       return input;
@@ -74,7 +108,9 @@ export const executeWorkflow = async (
 
     // Process current node
     const input = inputs.length > 0 ? inputs[0] : null;
+    console.log("input", input);
     const result = await mockProcessing(node, input);
+    console.log("result", result);
     nodeResults[nodeId] = result;
     processedNodes.add(nodeId);
     onNodeComplete(nodeId, result);
@@ -86,5 +122,7 @@ export const executeWorkflow = async (
 
   // Start with input nodes
   const inputNodes = nodes.filter(node => node.type === 'input');
+  console.log("inputNodes", inputNodes);
+  
   await Promise.all(inputNodes.map(node => processNode(node.id)));
 };
